@@ -1,9 +1,8 @@
-from module.parameters import Parameters
 import numpy as np
+from nn.module.parameters import Parameters
 
-
-class Sigmoid:
-    """Реализует сигмоиду"""
+class ReLU:
+    """Реализует ReLU"""
 
     def __init__(self):
         self.params = Parameters(1)
@@ -25,8 +24,7 @@ class Sigmoid:
         output : np.ndarray, shape=(M, N_in)
             Выход слоя
         """
-        # TODO: Реализовать рассчет sigmoid функции активации
-        self.out = None
+        self.out = np.maximum(0, inpt)
 
         return self.out
 
@@ -48,8 +46,7 @@ class Sigmoid:
 
     def _compute_gradients(self, grads):
         """Считает градиенты модели"""
-        # TODO: Реализовать рассчет градиентов
-        input_grads = None
+        input_grads = grads * (self.out > 0)
         return input_grads
 
     def _train(self):
@@ -61,4 +58,4 @@ class Sigmoid:
         pass
 
     def __repr__(self):
-        return "Sigmoid()"
+        return "ReLU()"
