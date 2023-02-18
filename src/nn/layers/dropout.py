@@ -1,6 +1,5 @@
-from module.parameters import Parameters
+from nn.module.parameters import Parameters
 import numpy as np
-
 
 class Dropout:
     """Реализует dropout
@@ -14,10 +13,13 @@ class Dropout:
 
     def __init__(self, p=0.5):
         self.p = p
+        if p >= 1 or p <= 0:
+            raise Exception("p should be p >= 1 and p <= 0")
 
         self.params = Parameters(1)
         self.regime = "Train"
         self.mask = None
+        self.out = None
 
     def forward(self, inpt):
         """Реализует forward-pass
@@ -37,9 +39,10 @@ class Dropout:
         if self.regime == "Eval":
             return inpt
 
-        # TODO: Реализовать dropout
-        self.mask = None
-        self.out =None
+        if self.mask is None:
+            self.mask = np.random.binomial(1, self.p, size=inpt.shape)
+
+        self.out = inpt * self.mask / (1 - self.p)
 
         return self.out
 
@@ -51,7 +54,7 @@ class Dropout:
         """Возвращает параметры модели"""
         return self.params
 
-    def _zero_grad(self):
+    def zero_grad(self):
         """Обнуляет градиенты модели
 
         Не нужен в данном случае,
@@ -59,19 +62,19 @@ class Dropout:
         """
         pass
 
-    def _compute_gradients(self, grads):
+    def compute_gradients(self, grads):
         """Считает градиенты модели"""
         if self.regime == "Eval":
             raise RuntimeError("Нельзя посчитать градиенты в режиме оценки")
         # TODO: Реализовать рассчет градиента с dropout
-        input_grads = None
+        input_grads = grads * self.mask / (1 - self.p)
         return input_grads
 
-    def _train(self):
+    def train(self):
         """Переводит модель в режим обучения"""
         self.regime = "Train"
 
-    def _eval(self):
+    def eval(self):
         """Переводит модель в режим оценивания"""
         self.regime = "Eval"
 

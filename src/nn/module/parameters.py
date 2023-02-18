@@ -13,7 +13,7 @@ class Parameters:
         self.m = None
         self.v = None
 
-    def _init_params(self, method='kaiming'):
+    def init_params(self, method='kaiming'):
         """Инициализация параметров
 
         ---------
@@ -23,6 +23,10 @@ class Parameters:
             Метод инициализации параметров
             Пока доступен только 'kaiming'
         """
-        if method=='kaiming':
-            # TODO: Реализовать инициализацию параметров модели методом Kaiming
+        if method == 'kaiming':
             self.params = None
+            num_params = self.shape[0] if len(self.shape) == 2 else np.prod(self.shape[1:])
+            std = np.sqrt(2 / num_params)
+            self.params = np.random.normal(loc=0.0, scale=std, size=self.shape)
+        else:
+            raise Exception("You are gay!")
