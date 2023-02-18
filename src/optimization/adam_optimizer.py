@@ -47,10 +47,26 @@ class Adam:
             param.v = np.zeros(param.shape)
 
     def zero_grad(self):
+        self.t = 0
         for param in self.params:
             param.grads = np.zeros(param.shape)
 
     def step(self):
-        # TODO: Реализовать шаг Adam
-        # Аналогичная реализация классического градиентоного спуска реализована в gd_optimizer.py
-        pass
+        # step index
+        # посмотрел в одной реализации ин интырнэта
+        self.t += 1
+
+        for param in self.params:
+            grads = param.grads
+            grads += self.alpha1 * np.sign(param.params) + self.alpha2 * param.params
+
+            # Обновление первого и второго моментов
+            param.m = self.beta_1 * param.m + (1 - self.beta_1) * grads
+            param.v = self.beta_2 * param.v + (1 - self.beta_2) * (grads ** 2)
+
+            # Исправление смещения первого и второго моментов
+            m_hat = param.m / (1 - self.beta_1 ** self.t)
+            v_hat = param.v / (1 - self.beta_2 ** self.t)
+
+            # Рассчет изменения весов
+            param.params -= self.lr * m_hat / (np.sqrt(v_hat) + self.eps)

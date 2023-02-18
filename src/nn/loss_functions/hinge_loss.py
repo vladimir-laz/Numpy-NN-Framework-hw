@@ -28,11 +28,11 @@ def hinge_loss(inpt, target):
     C = inpt.array.shape[-1]
     target = np.eye(C)[target]
 
-    # TODO: Реализовать рассчет функции ошибки - loss
-    # Можно взять такую реализацию - https://keras.io/api/losses/hinge_losses/#categoricalhinge-function
-    loss = None
+    # hinge loss для бинарной классификации
+    loss = np.mean(np.max(0, 1 - target * inpt.array))
 
-    # TODO: Реализовать рассчет градиента ошибки - grad
-    grad = None
+    grad = -target * (target * inpt.array < 1)
+    grad = grad / inpt.array.shape[-1]
+    grad = grad / target.shape[0]
 
     return Loss(loss, grad, inpt.model)
