@@ -42,7 +42,7 @@ class Sequential:
         for module in self.modules:
             module.zero_grad()
 
-    def _compute_gradients(self, grads):
+    def compute_gradients(self, grads):
         """Считает градиенты всех элементов"""
         for module in reversed(self.modules):
             grads = module.compute_gradients(grads)

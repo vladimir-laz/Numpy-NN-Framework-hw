@@ -29,7 +29,7 @@ def hinge_loss(inpt, target):
     target = np.eye(C)[target]
 
     # hinge loss для бинарной классификации
-    loss = np.mean(np.max(0, 1 - target * inpt.array))
+    loss = np.mean(np.maximum(0, 1 - target * inpt.array))
 
     grad = -target * (target * inpt.array < 1)
     grad = grad / inpt.array.shape[-1]

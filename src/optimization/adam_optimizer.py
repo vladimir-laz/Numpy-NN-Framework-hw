@@ -58,7 +58,10 @@ class Adam:
 
         for param in self.params:
             grads = param.grads
-            grads += self.alpha1 * np.sign(param.params) + self.alpha2 * param.params
+            if self.alpha1 is not None:
+                grads += self.alpha1 * np.sign(param.params)
+            if self.alpha2 is not None:
+                grads += self.alpha2 * param.params
 
             # Обновление первого и второго моментов
             param.m = self.beta_1 * param.m + (1 - self.beta_1) * grads

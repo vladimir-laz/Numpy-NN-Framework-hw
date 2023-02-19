@@ -37,7 +37,7 @@ class Sigmoid:
         """Возвращает параметры модели"""
         return self.params
 
-    def _zero_grad(self):
+    def zero_grad(self):
         """Обнуляет градиенты модели
 
         Не нужен в данном случае,
@@ -45,16 +45,16 @@ class Sigmoid:
         """
         pass
 
-    def _compute_gradients(self, grads):
+    def compute_gradients(self, grads):
         """Считает градиенты модели"""
         input_grads = grads * self.out * (1 - self.out)
         return input_grads
 
-    def _train(self):
+    def train(self):
         """Переводит модель в режим обучения"""
         pass
 
-    def _eval(self):
+    def eval(self):
         """Переводит модель в режим оценивания"""
         pass
 
