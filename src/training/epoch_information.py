@@ -68,6 +68,7 @@ class EpochInformation:
                                       self.max_num), end='')
 
         for info in self.description:
+            # print(values)
             if len(info) == 2:
                 string = str(values[info[0]])
             else:

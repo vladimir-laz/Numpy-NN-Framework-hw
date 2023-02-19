@@ -132,8 +132,6 @@ def train(dataset, model, epochs=100, lr=1e-3, batch_size=1000,
             # vecs - [batch size, embedding size]
             # predicts - [batch size, num classes]
             predicts = model(vecs)
-            # predicts.array = np.exp(predicts.array.astype(float))
-            # predicts.array /= sum(np.exp(predicts.array.astype(float)))
 
             train_loss = hinge_loss(predicts, labels)
 
