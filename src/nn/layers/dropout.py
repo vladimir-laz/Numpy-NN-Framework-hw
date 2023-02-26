@@ -40,7 +40,7 @@ class Dropout:
             return inpt
 
         if self.mask is None:
-            self.mask = np.random.binomial(1, self.p, size=inpt.shape)
+            self.mask = np.random.binomial(1, self.p, size=inpt.shape[1:])
 
         self.out = inpt * self.mask / (1 - self.p)
 

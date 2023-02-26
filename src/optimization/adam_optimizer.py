@@ -40,7 +40,8 @@ class Adam:
         self.eps = eps
         self.alpha1 = alpha1
         self.alpha2 = alpha2
-        self.t = 1.00001
+        #self.t = 1.00001
+        self.t = 0
 
         for param in self.params:
             param.m = np.zeros(param.shape)
@@ -51,15 +52,18 @@ class Adam:
             param.grads = np.zeros(param.shape)
 
     def step(self):
-
+        self.t += 1
         for param in self.params:
-            param.m = self.beta_1 * param.m + (1 - self.beta_1) * param.grads
-            param.v = self.beta_2 * param.v + (1 - self.beta_2) * param.grads ** 2
-
             grads = np.zeros(param.grads.shape)
+            if not (self.alpha1 is None):
+                grads += self.alpha1 * np.sign(param.params)
+            if not (self.alpha2 is None):
+                grads += self.alpha2 * param.params
+                
             grads += param.grads
-
-            m_hat = param.m/(1-self.beta_1**self.t)
-            v_hat = param.v/(1-self.beta_2**self.t)
-
-            param.params -= self.lr/(np.sqrt(v_hat) + 1e-8) * m_hat
+            param.m = self.beta_1 * param.m + (1-self.beta_1) * grads
+            param.v = self.beta_2 * param.v + (1-self.beta_2) * np.square(grads)
+            m_tmp = param.m / (1-self.beta_1**self.t)
+            v_tmp = param.v / (1-self.beta_2**self.t)
+            param.params = param.params - self.lr * np.divide(m_tmp, np.sqrt(v_tmp) + self.eps)
+            

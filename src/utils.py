@@ -1,4 +1,11 @@
 import time
+import numpy as np
+from optimization.gd_optimizer import GD
+from optimization.adam_optimizer import Adam
+from nn.loss_functions.hinge_loss import hinge_loss
+from nn.loss_functions.mse_loss import mse_loss
+from numpy import linalg as LA
+from collections import OrderedDict
 
 def progress_bar(iterable, text='Epoch progress', end=''):
     """Мониториг выполнения эпохи
@@ -55,6 +62,71 @@ def progress_bar(iterable, text='Epoch progress', end=''):
         cur_time = int(cur_time)
         print(end, end='')
 
-def gradient_check(x, y, neural_net):
-    # TODO: Реализуйте проверку градиента
-    pass
+
+def gradient_check(x, y, neural_net, num_last=3, optim_method="GD", lr=3e-4, eps=1e-3, alpha1=None, alpha2=None):
+    
+    params = list(neural_net.parameters())
+    norm_chicl = []
+    norm_backprop = []
+    norm_backprop_vec = np.zeros(len(params))
+    
+    if optim_method == "Adam":
+        optimizer = Adam(neural_net.parameters(), lr=lr,
+                         alpha1=alpha1, alpha2=alpha2)
+    elif optim_method == "GD":
+        optimizer = GD(neural_net.parameters(), lr=lr,
+                       alpha1=alpha1, alpha2=alpha2)
+    
+    neural_net.train()
+    optimizer.zero_grad()
+    pred = neural_net(x)
+    train_loss = hinge_loss(pred, y)
+    train_loss.backward()
+    
+    for i, param in enumerate(params):
+        norm_backprop_vec[i] = LA.norm(param.grads)
+    
+    for i, param in enumerate(params):
+        sh = param.params.shape
+        if i >= len(params) - num_last:
+            print(sh)
+            for j in range(sh[0]):
+                if len(sh) == 1:
+                    param_copy = param.params[j]
+                    param.params[j] = param_copy + eps
+                    #optimizer.zero_grad()
+                    pred = neural_net(x)
+                    loss_p = hinge_loss(pred, y)
+                    param.params[j] = param_copy - eps
+                    #optimizer.zero_grad()
+                    pred = neural_net(x)
+                    loss_m = hinge_loss(pred, y)
+                    param.params[j] = param_copy
+                    norm_chicl.append((loss_p.loss - loss_m.loss) / (2*eps))
+                    norm_backprop.append(param.grads[j])
+                elif len(sh) == 2:
+                    for k in range(sh[1]):
+                        param_copy = param.params[j][k]
+                        param.params[j][k] = param_copy + eps
+                        #optimizer.zero_grad()
+                        pred = neural_net(x)
+                        loss_p = hinge_loss(pred, y)
+                        param.params[j][k] = param_copy - eps
+                        #optimizer.zero_grad()
+                        pred = neural_net(x)
+                        loss_m = hinge_loss(pred, y)
+                        param.params[j][k] = param_copy
+                        norm_chicl.append((loss_p.loss - loss_m.loss) / (2*eps))
+                        norm_backprop.append(param.grads[j][k])
+    
+    norm_chicl = np.array(norm_chicl)
+    norm_backprop = np.array(norm_backprop)
+    diff = LA.norm(norm_chicl-norm_backprop) / (LA.norm(norm_chicl)+LA.norm(norm_backprop))
+    print('norm_chicl norm = ', LA.norm(norm_chicl))
+    print('norm_backprop norm = ', LA.norm(norm_backprop))
+    print('diff = ', diff)
+    if diff <= eps:
+        print('Backprop is correct!')
+    else:
+        print('Backprop is incorrect!')
+        

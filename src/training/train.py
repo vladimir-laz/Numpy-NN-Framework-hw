@@ -85,6 +85,7 @@ def train(dataset, model, epochs=100, lr=1e-3, batch_size=1000,
     * Если return_history=False
         None
     """
+    model.train()
     if timer:
         start_time = time.time()
 
